@@ -1,6 +1,5 @@
 from Code.window import windowClass
 from Code.game import gameClass
-import Code.stockfishInterface
 
 window = windowClass()
 game = gameClass()

@@ -11,6 +11,45 @@ class pieceClass:
         self.activated = False
     def get_rect(self):
         self.rect = self.image.get_rect(topleft = (self.x, self.y))
+    def updatePos(self, game):
+        newName = self.type[0] + self.pos + self.type[1]
+        if self.name != newName:
+            if self.type[1] == 'W':
+                game.whitePieces[newName] = game.whitePieces[self.name]
+                del game.whitePieces[self.name]
+            else:
+                game.blackPieces[newName] = game.blackPieces[self.name]
+                del game.blackPieces[self.name]
+            self.name = newName
+        self.x = game.board.tiles[self.pos].x + game.board.coords[0]
+        self.y = game.board.tiles[self.pos].y + game.board.coords[1]
+        self.get_rect()
+    def dropPiece(self, game):
+        game.mouseHolding = None
+        if game.board.mouseOver in self.getValidSquares(game) and game.turn == self.name[3] and game.turn == 'W': # this last condition limits the moveable pieces to white
+            self.activated = True
+            game.update(self.pos + game.board.mouseOver)
+            if game.turn == 'W':
+                game.turn = 'B'
+            else:
+                game.turn = 'W'
+            if game.board.mouseOver in game.board.occupied:
+                game.board.tiles[game.board.mouseOver].piece.captured = True
+            self.castleRule(game)
+            self.pos = game.board.mouseOver
+            newName = self.type[0] + self.pos + self.type[1]
+            if game.specialCapture != {}:
+                if newName in game.specialCapture:
+                    game.board.tiles[game.specialCapture[newName]].piece.captured = True
+                game.specialCapture = {}
+        self.updatePos(game)
+    def castleRule(self, game):
+        if self.type[0] == 'k' and self.pos == 'e' + self.pos[1] and game.board.mouseOver == 'g' + self.pos[1]:
+            game.board.tiles['h' + self.pos[1]].piece.pos = 'f' + self.pos[1]
+            game.board.tiles['h' + self.pos[1]].piece.updatePos(game)
+        elif self.type[0] == 'k' and self.pos == 'e' + self.pos[1] and game.board.mouseOver == 'c' + self.pos[1]:
+            game.board.tiles['a' + self.pos[1]].piece.pos = 'd' + self.pos[1]
+            game.board.tiles['a' + self.pos[1]].piece.updatePos(game)
     def render(self, window, game):
         window.screen.blit(self.image, (self.x, self.y))
         mouseCoords = (window.mouse["mx"], window.mouse["my"])
@@ -20,27 +59,16 @@ class pieceClass:
             self.x = mouseCoords[0] - self.size / 2
             self.y = mouseCoords[1] - self.size / 2
             if not window.mouse["m1"]:
-                game.mouseHolding = None
-                if game.board.mouseOver in self.getValidSquares(game) and game.turn == self.name[3]:
-                    self.activated = True
-                    if game.turn == 'W':
-                        game.turn = 'B'
-                    else:
-                        game.turn = 'W'
-                    if game.board.mouseOver in game.board.occupied:
-                        game.board.tiles[game.board.mouseOver].piece.captured = True
-                    self.pos = game.board.mouseOver
-                    newName = self.type[0] + self.pos + self.type[1]
-                    if self.type[1] == 'W':
-                        game.whitePieces[newName] = game.whitePieces[self.name]
-                        del game.whitePieces[self.name]
-                    else:
-                        game.blackPieces[newName] = game.blackPieces[self.name]
-                        del game.blackPieces[self.name]
-                    self.name = newName
-                self.x = game.board.tiles[self.pos].x + game.board.coords[0]
-                self.y = game.board.tiles[self.pos].y + game.board.coords[1]
+                self.dropPiece(game)
             self.get_rect()
+    def legalCheck(self, game, validList):
+        engine = game.stockfish.engine
+        valid = []
+        for pos in validList:
+            if engine.is_move_correct(self.pos + pos):
+                valid.append(pos)
+        return valid
+
 
 class pawnClass(pieceClass):
     def __init__(self, color):
@@ -72,7 +100,20 @@ class pawnClass(pieceClass):
         for pos in diagonals:
             if pos in game.board.occupied and game.board.tiles[pos].piece.name[3] != self.name[3]:
                 valid.append(pos)
-        return valid
+        # en passant
+        game.specialCapture = {}
+        if self.name[3] == 'W' and self.pos[1] == '5':
+            left = self.horz.index(self.pos[0]) - 1
+            if left >= 0 and not pos in game.board.occupied and self.horz[left] + '5' in game.board.occupied and game.board.tiles[self.horz[left] + '5'].piece.name[3] == 'B' and game.board.tiles[self.horz[left] + '5'].piece.name[0] == 'p' and game.moves[-1][1] == '7' and game.moves[-1][3] == '5':
+                pos = self.horz[left] + '6'
+                valid.append(pos)
+                game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[left] + '5'
+            right = self.horz.index(self.pos[0]) + 1
+            if right < 8 and not pos in game.board.occupied and self.horz[right] + '5' in game.board.occupied and game.board.tiles[self.horz[right] + '5'].piece.name[3] == 'B' and game.board.tiles[self.horz[right] + '5'].piece.name[0] == 'p' and game.moves[-1][1] == '7' and game.moves[-1][3] == '5':
+                pos = self.horz[right] + '6'
+                valid.append(pos)
+                game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[right] + '5'
+        return self.legalCheck(game, valid)
 
 class rookClass(pieceClass):
     def __init__(self, color):
@@ -143,7 +184,7 @@ class rookClass(pieceClass):
             else:
                 valid.append(pos)
             distance += 1
-        return valid
+        return self.legalCheck(game, valid)
 
 class horseClass(pieceClass):
     def __init__(self, color):
@@ -160,7 +201,7 @@ class horseClass(pieceClass):
                 pos = self.horz[newIndexH] + self.vert[newIndexV]
                 if not pos in game.board.occupied or game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
-        return valid
+        return self.legalCheck(game, valid)
 
 class bishopClass(pieceClass):
     def __init__(self, color):
@@ -235,7 +276,7 @@ class bishopClass(pieceClass):
             else:
                 valid.append(pos)
             distance += 1
-        return valid
+        return self.legalCheck(game, valid)
 
 class kingClass(pieceClass):
     def __init__(self, color):
@@ -243,9 +284,28 @@ class kingClass(pieceClass):
     def getValidSquares(self, game):
         valid = []
         # kingside castle
-        if not self.activated and not 'f1' in game.board.occupied and not 'g1' in game.board.occupied and 'h1' in game.board.occupied and not game.board.tiles['h1'].piece.activated:
-            valid.append('g1')
-        return valid
+        y = self.pos[1]
+        spacesCleared = not 'f' + y in game.board.occupied and not 'g' + y in game.board.occupied and 'h' + y in game.board.occupied
+        if not self.activated and spacesCleared and not game.board.tiles['h' + y].piece.activated:
+            valid.append('g' + y)
+        # queenside castle
+        y = self.pos[1]
+        spacesCleared = not 'b' + y in game.board.occupied and not 'c' + y in game.board.occupied and not 'd' + y in game.board.occupied and 'a' + y in game.board.occupied
+        if not self.activated and spacesCleared and not game.board.tiles['a' + y].piece.activated:
+            valid.append('c' + y)
+        # all movements around
+        for distanceSet in [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]:
+            distanceA = distanceSet[0]
+            distanceB = distanceSet[1]
+            newIndexH = self.horz.index(self.pos[0]) + distanceA
+            newIndexV = self.vert.index(self.pos[1]) + distanceB
+            onBoard = newIndexH < 8 and newIndexH >= 0 and newIndexV < 8 and newIndexV >= 0
+            if onBoard:
+                pos = self.horz[newIndexH] + self.vert[newIndexV]
+                if not pos in game.board.occupied or game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+        return self.legalCheck(game, valid)
+
 
 class queenClass(pieceClass):
     def __init__(self, color):
@@ -384,4 +444,4 @@ class queenClass(pieceClass):
             else:
                 valid.append(pos)
             distance += 1
-        return valid
+        return self.legalCheck(game, valid)

@@ -1,18 +1,26 @@
 from Code.pieces import *
 from Code.board import boardClass
+from Code.stockfishInterface import stockfishBox
 
 class gameClass:
     def __init__(self):
         self.board = boardClass()
-        self.mouseHolding = None
-        self.turn = "W"
+        self.stockfish = stockfishBox()
         self.reset()
     def pieceReset(self, piece, dict):
         piece.x = self.board.tiles[piece.pos].x + self.board.coords[0]
         piece.y = self.board.tiles[piece.pos].y + self.board.coords[1]
         piece.get_rect()
         dict[piece.name] = piece
+    def update(self, move):
+        self.moves.append(move)
+        self.stockfish.engine.set_position(self.moves)
     def reset(self):
+        self.mouseHolding = None
+        self.turn = "W"
+        self.timer = 0
+        self.moves = []
+        self.specialCapture = {} # used for en passant and potentially other weird captures
         self.whitePieces = {}
         self.blackPieces = {}
         piecesList = [
@@ -89,9 +97,18 @@ class gameClass:
                 piece.pos = pieceName[1] + '8'
                 self.pieceReset(piece, self.blackPieces)
     def render(self, window):
+        if self.turn == 'B':
+            self.timer += window.tick
+            if self.timer > 600:
+                self.stockfish.makeMove(self)
+        else:
+            self.timer = 0
+        if window.input["spaceT"]:
+            self.reset()
         self.board.render(window, self)
         self.board.highlights = []
         self.board.occupied = []
+        self.board.bControl = []
         pieces = {**self.whitePieces, **self.blackPieces}
         for pieceName in pieces:
             self.board.occupied.append(pieces[pieceName].pos)
@@ -105,5 +122,5 @@ class gameClass:
         if self.mouseHolding != None:
             piece = pieces[self.mouseHolding]
             piece.render(window, self)
-            if piece.name[3] == self.turn:
+            if piece.name[3] == self.turn and self.turn == 'W':
                 self.board.highlights += piece.getValidSquares(self)
