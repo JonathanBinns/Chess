@@ -104,4 +104,4 @@ class gameClass:
         if self.mouseHolding != None:
             piece = pieces[self.mouseHolding]
             piece.render(window, self)
-            self.board.highlights = piece.getValidSquares(self)
+            self.board.highlights += piece.getValidSquares(self)

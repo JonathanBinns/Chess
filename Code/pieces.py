@@ -24,7 +24,14 @@ class pieceClass:
                     if game.board.mouseOver in game.board.occupied:
                         game.board.tiles[game.board.mouseOver].piece.captured = True
                     self.pos = game.board.mouseOver
-                    self.name = self.type[0] + self.pos + self.type[1]
+                    newName = self.type[0] + self.pos + self.type[1]
+                    if self.type[1] == 'W':
+                        game.whitePieces[newName] = game.whitePieces[self.name]
+                        del game.whitePieces[self.name]
+                    else:
+                        game.blackPieces[newName] = game.blackPieces[self.name]
+                        del game.blackPieces[self.name]
+                    self.name = newName
                 self.x = game.board.tiles[self.pos].x + game.board.coords[0]
                 self.y = game.board.tiles[self.pos].y + game.board.coords[1]
             self.get_rect()
@@ -34,7 +41,6 @@ class pawnClass(pieceClass):
         super().__init__('p' + color)
     # generate all possible squares first, then eliminate the invalid ones
     # pawns are unique because they attack diagonally
-    # pa7B
     def getValidSquares(self, game):
         valid = []
         if self.name[3] == 'W':
@@ -53,9 +59,9 @@ class pawnClass(pieceClass):
             y = str(int(self.pos[1]) + 1)
         else:
             y = str(int(self.pos[1]) - 1)
-        if not self.horz.index(self.pos[0]) + 1 > 7:
+        if self.horz.index(self.pos[0]) + 1 < 8:
             diagonals.append(self.horz[self.horz.index(self.pos[0]) + 1] + y)
-        if not self.horz.index(self.pos[0]) - 1 < 0:
+        if self.horz.index(self.pos[0]) - 1 >= 0:
             diagonals.append(self.horz[self.horz.index(self.pos[0]) - 1] + y)
         for pos in diagonals:
             if pos in game.board.occupied and game.board.tiles[pos].piece.name[3] != self.name[3]:
@@ -65,14 +71,165 @@ class pawnClass(pieceClass):
 class rookClass(pieceClass):
     def __init__(self, color):
         super().__init__('r' + color)
+    def getValidSquares(self, game):
+        valid = []
+        # up
+        condition = False
+        distance = 1
+        while not condition:
+            newIndex = self.vert.index(self.pos[1]) + distance
+            if newIndex < 8:
+                pos = self.pos[0] + self.vert[newIndex]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # right
+        condition = False
+        distance = 1
+        while not condition:
+            newIndex = self.horz.index(self.pos[0]) + distance
+            if newIndex < 8:
+                pos = self.horz[newIndex] + self.pos[1]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # down
+        condition = False
+        distance = 1
+        while not condition:
+            newIndex = self.vert.index(self.pos[1]) - distance
+            if newIndex >= 0:
+                pos = self.pos[0] + self.vert[newIndex]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # left
+        condition = False
+        distance = 1
+        while not condition:
+            newIndex = self.horz.index(self.pos[0]) - distance
+            if newIndex >= 0:
+                pos = self.horz[newIndex] + self.pos[1]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        return valid
 
 class horseClass(pieceClass):
     def __init__(self, color):
         super().__init__('h' + color)
+    def getValidSquares(self, game):
+        valid = []
+        for distanceSet in [[1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2]]:
+            distanceA = distanceSet[0]
+            distanceB = distanceSet[1]
+            newIndexH = self.horz.index(self.pos[0]) + distanceA
+            newIndexV = self.vert.index(self.pos[1]) + distanceB
+            onBoard = newIndexH < 8 and newIndexH >= 0 and newIndexV < 8 and newIndexV >= 0
+            if onBoard:
+                pos = self.horz[newIndexH] + self.vert[newIndexV]
+                if not pos in game.board.occupied or game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+        return valid
 
 class bishopClass(pieceClass):
     def __init__(self, color):
         super().__init__('b' + color)
+    def getValidSquares(self, game):
+        valid = []
+        # upright
+        condition = False
+        distance = 1
+        while not condition:
+            newIndexH = self.horz.index(self.pos[0]) + distance
+            newIndexV = self.vert.index(self.pos[1]) + distance
+            if newIndexH < 8 and newIndexV < 8:
+                pos = self.horz[newIndexH] + self.vert[newIndexV]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # downright
+        condition = False
+        distance = 1
+        while not condition:
+            newIndexH = self.horz.index(self.pos[0]) + distance
+            newIndexV = self.vert.index(self.pos[1]) - distance
+            if newIndexH < 8 and newIndexV >= 0:
+                pos = self.horz[newIndexH] + self.vert[newIndexV]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # downleft
+        condition = False
+        distance = 1
+        while not condition:
+            newIndexH = self.horz.index(self.pos[0]) - distance
+            newIndexV = self.vert.index(self.pos[1]) - distance
+            if newIndexH >= 0 and newIndexV >= 0:
+                pos = self.horz[newIndexH] + self.vert[newIndexV]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # upleft
+        condition = False
+        distance = 1
+        while not condition:
+            newIndexH = self.horz.index(self.pos[0]) - distance
+            newIndexV = self.vert.index(self.pos[1]) + distance
+            if newIndexH >= 0 and newIndexV < 8:
+                pos = self.horz[newIndexH] + self.vert[newIndexV]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        return valid
 
 class kingClass(pieceClass):
     def __init__(self, color):
@@ -81,3 +238,138 @@ class kingClass(pieceClass):
 class queenClass(pieceClass):
     def __init__(self, color):
         super().__init__('q' + color)
+    def getValidSquares(self, game):
+        valid = []
+        # upright
+        condition = False
+        distance = 1
+        while not condition:
+            newIndexH = self.horz.index(self.pos[0]) + distance
+            newIndexV = self.vert.index(self.pos[1]) + distance
+            if newIndexH < 8 and newIndexV < 8:
+                pos = self.horz[newIndexH] + self.vert[newIndexV]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # downright
+        condition = False
+        distance = 1
+        while not condition:
+            newIndexH = self.horz.index(self.pos[0]) + distance
+            newIndexV = self.vert.index(self.pos[1]) - distance
+            if newIndexH < 8 and newIndexV >= 0:
+                pos = self.horz[newIndexH] + self.vert[newIndexV]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # downleft
+        condition = False
+        distance = 1
+        while not condition:
+            newIndexH = self.horz.index(self.pos[0]) - distance
+            newIndexV = self.vert.index(self.pos[1]) - distance
+            if newIndexH >= 0 and newIndexV >= 0:
+                pos = self.horz[newIndexH] + self.vert[newIndexV]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # upleft
+        condition = False
+        distance = 1
+        while not condition:
+            newIndexH = self.horz.index(self.pos[0]) - distance
+            newIndexV = self.vert.index(self.pos[1]) + distance
+            if newIndexH >= 0 and newIndexV < 8:
+                pos = self.horz[newIndexH] + self.vert[newIndexV]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # up
+        condition = False
+        distance = 1
+        while not condition:
+            newIndex = self.vert.index(self.pos[1]) + distance
+            if newIndex < 8:
+                pos = self.pos[0] + self.vert[newIndex]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # right
+        condition = False
+        distance = 1
+        while not condition:
+            newIndex = self.horz.index(self.pos[0]) + distance
+            if newIndex < 8:
+                pos = self.horz[newIndex] + self.pos[1]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # down
+        condition = False
+        distance = 1
+        while not condition:
+            newIndex = self.vert.index(self.pos[1]) - distance
+            if newIndex >= 0:
+                pos = self.pos[0] + self.vert[newIndex]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        # left
+        condition = False
+        distance = 1
+        while not condition:
+            newIndex = self.horz.index(self.pos[0]) - distance
+            if newIndex >= 0:
+                pos = self.horz[newIndex] + self.pos[1]
+            else:
+                break
+            if pos in game.board.occupied:
+                condition = True
+                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                    valid.append(pos)
+            else:
+                valid.append(pos)
+            distance += 1
+        return valid
