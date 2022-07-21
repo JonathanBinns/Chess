@@ -8,6 +8,7 @@ class pieceClass:
         self.vert = ['1', '2', '3', '4', '5', '6', '7', '8']
         self.horz = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         self.captured = False
+        self.activated = False
     def get_rect(self):
         self.rect = self.image.get_rect(topleft = (self.x, self.y))
     def render(self, window, game):
@@ -20,7 +21,12 @@ class pieceClass:
             self.y = mouseCoords[1] - self.size / 2
             if not window.mouse["m1"]:
                 game.mouseHolding = None
-                if game.board.mouseOver in self.getValidSquares(game):
+                if game.board.mouseOver in self.getValidSquares(game) and game.turn == self.name[3]:
+                    self.activated = True
+                    if game.turn == 'W':
+                        game.turn = 'B'
+                    else:
+                        game.turn = 'W'
                     if game.board.mouseOver in game.board.occupied:
                         game.board.tiles[game.board.mouseOver].piece.captured = True
                     self.pos = game.board.mouseOver
@@ -234,6 +240,12 @@ class bishopClass(pieceClass):
 class kingClass(pieceClass):
     def __init__(self, color):
         super().__init__('k' + color)
+    def getValidSquares(self, game):
+        valid = []
+        # kingside castle
+        if not self.activated and not 'f1' in game.board.occupied and not 'g1' in game.board.occupied and 'h1' in game.board.occupied and not game.board.tiles['h1'].piece.activated:
+            valid.append('g1')
+        return valid
 
 class queenClass(pieceClass):
     def __init__(self, color):

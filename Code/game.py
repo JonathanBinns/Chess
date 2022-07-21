@@ -5,6 +5,7 @@ class gameClass:
     def __init__(self):
         self.board = boardClass()
         self.mouseHolding = None
+        self.turn = "W"
         self.reset()
     def pieceReset(self, piece, dict):
         piece.x = self.board.tiles[piece.pos].x + self.board.coords[0]
@@ -104,4 +105,5 @@ class gameClass:
         if self.mouseHolding != None:
             piece = pieces[self.mouseHolding]
             piece.render(window, self)
-            self.board.highlights += piece.getValidSquares(self)
+            if piece.name[3] == self.turn:
+                self.board.highlights += piece.getValidSquares(self)
