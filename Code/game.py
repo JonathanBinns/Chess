@@ -17,7 +17,8 @@ class gameClass:
         self.stockfish.engine.set_position(self.moves)
     def reset(self):
         self.mouseHolding = None
-        self.turn = "W"
+        self.turn = 'W'
+        self.stockfish.engine.set_position([])
         self.timer = 0
         self.moves = []
         self.specialCapture = {} # used for en passant and potentially other weird captures
@@ -112,6 +113,18 @@ class gameClass:
         pieces = {**self.whitePieces, **self.blackPieces}
         for pieceName in pieces:
             self.board.occupied.append(pieces[pieceName].pos)
+            if pieceName[0] == 'p' and (pieces[pieceName].pos[1] == '8' or pieces[pieceName].pos[1] == '1'):
+                pieces[pieceName].captured = True
+                if pieces[pieceName][3] == 'W':
+                    piece = queenClass('W')
+                    piece.name = 'q' + pieces[pieceName].pos + 'W'
+                    piece.pos = pieces[pieceName].pos
+                    self.pieceReset(piece, self.whitePieces)
+                else:
+                    piece = queenClass('B')
+                    piece.name = 'q' + pieces[pieceName].pos + 'B'
+                    piece.pos = pieces[pieceName].pos
+                    self.pieceReset(piece, self.blackPieces)
             if pieces[pieceName].captured:
                 if pieceName in self.whitePieces:
                     del self.whitePieces[pieceName]
@@ -124,3 +137,5 @@ class gameClass:
             piece.render(window, self)
             if piece.name[3] == self.turn and self.turn == 'W':
                 self.board.highlights += piece.getValidSquares(self)
+        elif len(self.moves) > 0 and self.turn == 'W':
+            self.board.highlights.append(self.moves[-1][2:4])

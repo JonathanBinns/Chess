@@ -6,5 +6,5 @@ game = gameClass()
 
 while window.isRunning():
     window.processing()
-    window.screen.fill((110, 130, 120))
+    window.screen.fill((90, 70, 50))
     game.render(window)

@@ -1,4 +1,5 @@
 import pygame as pg
+import math
 
 class tileClass:
     def __init__(self, size):
@@ -13,14 +14,15 @@ class boardClass:
         self.mouseOver = ""
         self.highlights = []
         self.occupied = []
+        self.timer = 0
         self.tileGen()
     def tileGen(self):
         self.tiles = {}
         vert = ['1', '2', '3', '4', '5', '6', '7', '8']
         horz = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         self.colors = {
-        "black": (30, 10, 0),
-        "white": (255, 235, 225)
+        "black": (45, 20, 0),
+        "white": (250, 225, 215)
         }
         currentColor = "black"
         size = 135
@@ -38,6 +40,7 @@ class boardClass:
                     if currentColor == "white": currentColor = "black"
                     elif currentColor == "black": currentColor = "white"
     def render(self, window, game):
+        self.timer += window.tick / 200
         for tileName in self.highlights:
             self.tiles[tileName].highlight = True
         self.mouseOver = ""
@@ -48,7 +51,11 @@ class boardClass:
             if tile.rect.collidepoint(mouseCoords):
                 self.mouseOver = tile.id
             if tile.highlight:
-                tile.color = (220, 240, 0)
+                percent = (1 + math.sin(self.timer)) / 3
+                R = (185 * percent) + (self.colors[tile.type][0] * (1 - percent))
+                G = (135 * percent) + (self.colors[tile.type][1] * (1 - percent))
+                B = (70 * percent) + (self.colors[tile.type][2] * (1 - percent))
+                tile.color = (R, G, B)
             else:
                 tile.color = self.colors[tile.type]
             tile.highlight = False
