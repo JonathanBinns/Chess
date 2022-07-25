@@ -98,7 +98,7 @@ class pawnClass(pieceClass):
         if self.horz.index(self.pos[0]) - 1 >= 0:
             diagonals.append(self.horz[self.horz.index(self.pos[0]) - 1] + y)
         for pos in diagonals:
-            if pos in game.board.occupied and game.board.tiles[pos].piece.name[3] != self.name[3]:
+            if pos in game.board.occupied and game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                 valid.append(pos)
         # en passant
         game.specialCapture = {}
@@ -131,7 +131,7 @@ class rookClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -147,7 +147,7 @@ class rookClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -163,7 +163,7 @@ class rookClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -179,7 +179,7 @@ class rookClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -199,7 +199,7 @@ class horseClass(pieceClass):
             onBoard = newIndexH < 8 and newIndexH >= 0 and newIndexV < 8 and newIndexV >= 0
             if onBoard:
                 pos = self.horz[newIndexH] + self.vert[newIndexV]
-                if not pos in game.board.occupied or game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if not pos in game.board.occupied or (game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]):
                     valid.append(pos)
         return self.legalCheck(game, valid)
 
@@ -220,7 +220,7 @@ class bishopClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -237,7 +237,7 @@ class bishopClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -254,7 +254,7 @@ class bishopClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -271,7 +271,7 @@ class bishopClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -302,7 +302,7 @@ class kingClass(pieceClass):
             onBoard = newIndexH < 8 and newIndexH >= 0 and newIndexV < 8 and newIndexV >= 0
             if onBoard:
                 pos = self.horz[newIndexH] + self.vert[newIndexV]
-                if not pos in game.board.occupied or game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if not pos in game.board.occupied or (game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]):
                     valid.append(pos)
         return self.legalCheck(game, valid)
 
@@ -324,7 +324,7 @@ class queenClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -341,7 +341,7 @@ class queenClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -358,7 +358,7 @@ class queenClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -375,7 +375,7 @@ class queenClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -391,7 +391,7 @@ class queenClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -407,7 +407,7 @@ class queenClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -423,7 +423,7 @@ class queenClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)
@@ -439,7 +439,7 @@ class queenClass(pieceClass):
                 break
             if pos in game.board.occupied:
                 condition = True
-                if game.board.tiles[pos].piece.name[3] != self.name[3]:
+                if game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                     valid.append(pos)
             else:
                 valid.append(pos)

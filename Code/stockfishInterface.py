@@ -7,7 +7,7 @@ class stockfishBox:
         #self.move = 0
     def makeMove(self, game):
         move = self.engine.get_best_move()
-        #move = ['c7c5', 'c5c4', 'c4d3'][self.move]
+        #move = ['b7b5', 'b5c4', 'c4c3', 'c3c2', 'c2c1', 'c1c6'][self.move]
         #self.move += 1
         start = move[0:2]
         end = move[2:4]

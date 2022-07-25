@@ -5,6 +5,7 @@ class tileClass:
     def __init__(self, size):
         self.size = size
         self.rect = None
+        self.piece = None
     def render(self, window, boardCoords):
         self.rect = pg.draw.rect(window.screen, self.color, (self.x + boardCoords[0], self.y + boardCoords[1], self.size, self.size))
 

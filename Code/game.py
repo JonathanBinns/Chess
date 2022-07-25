@@ -132,6 +132,17 @@ class gameClass:
                     del self.blackPieces[pieceName]
         for pieceName in pieces:
             pieces[pieceName].render(window, self)
+        movelist = []
+        if self.turn == 'W':
+            for pieceName in self.whitePieces:
+                movelist += self.whitePieces[pieceName].getValidSquares(self)
+            if len(movelist) == 0:
+                print("Black Wins by Checkmate!")
+        else:
+            for pieceName in self.blackPieces:
+                movelist += self.blackPieces[pieceName].getValidSquares(self)
+            if len(movelist) == 0:
+                print("White Wins by Checkmate!")
         if self.mouseHolding != None:
             piece = pieces[self.mouseHolding]
             piece.render(window, self)
