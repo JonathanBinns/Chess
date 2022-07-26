@@ -26,9 +26,12 @@ class pieceClass:
         self.get_rect()
     def dropPiece(self, game):
         game.mouseHolding = None
+        promotion = ''
         if game.board.mouseOver in self.getValidSquares(game) and game.turn == self.name[3] and game.turn == 'W': # this last condition limits the moveable pieces to white
             self.activated = True
-            game.update(self.pos + game.board.mouseOver)
+            if self.name[0] == 'p' and game.board.mouseOver[1] == '8':
+                promotion = 'q'
+            game.update(self.pos + game.board.mouseOver + promotion)
             if game.turn == 'W':
                 game.turn = 'B'
             else:
@@ -43,6 +46,8 @@ class pieceClass:
                     game.board.tiles[game.specialCapture[newName]].piece.captured = True
                 game.specialCapture = {}
         self.updatePos(game)
+        if promotion != '':
+            game.promote(game.board.mouseOver, 'q')
     def castleRule(self, game):
         if self.type[0] == 'k' and self.pos == 'e' + self.pos[1] and game.board.mouseOver == 'g' + self.pos[1]:
             game.board.tiles['h' + self.pos[1]].piece.pos = 'f' + self.pos[1]
@@ -61,11 +66,11 @@ class pieceClass:
             if not window.mouse["m1"]:
                 self.dropPiece(game)
             self.get_rect()
-    def legalCheck(self, game, validList):
+    def legalCheck(self, game, validList, promoteException = ''):
         engine = game.stockfish.engine
         valid = []
         for pos in validList:
-            if engine.is_move_correct(self.pos + pos):
+            if engine.is_move_correct(self.pos + pos + promoteException):
                 valid.append(pos)
         return valid
 
@@ -113,7 +118,10 @@ class pawnClass(pieceClass):
                 pos = self.horz[right] + '6'
                 valid.append(pos)
                 game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[right] + '5'
-        return self.legalCheck(game, valid)
+        promotion = ''
+        if self.name[3] == 'W' and self.pos[1] == '7':
+            promotion = 'q'
+        return self.legalCheck(game, valid, promotion)
 
 class rookClass(pieceClass):
     def __init__(self, color):

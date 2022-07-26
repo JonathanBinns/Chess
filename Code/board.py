@@ -52,10 +52,15 @@ class boardClass:
             if tile.rect.collidepoint(mouseCoords):
                 self.mouseOver = tile.id
             if tile.highlight:
-                percent = (1 + math.sin(self.timer)) / 3
-                R = (185 * percent) + (self.colors[tile.type][0] * (1 - percent))
-                G = (135 * percent) + (self.colors[tile.type][1] * (1 - percent))
-                B = (70 * percent) + (self.colors[tile.type][2] * (1 - percent))
+                percent = (1 + math.sin(self.timer)) / 4
+                if tile.type == "white":
+                    R = (65 * percent) + (250 * (1 - percent))
+                    G = (35 * percent) + (225 * (1 - percent))
+                    B = (20 * percent) + (215 * (1 - percent))
+                else:
+                    R = (225 * percent) + (45 * (1 - percent))
+                    G = (195 * percent) + (20 * (1 - percent))
+                    B = (185 * percent) + (0 * (1 - percent))
                 tile.color = (R, G, B)
             else:
                 tile.color = self.colors[tile.type]

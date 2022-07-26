@@ -3,12 +3,9 @@ from stockfish import Stockfish
 class stockfishBox:
     def __init__(self):
         self.engine = Stockfish(path = "stockfish/stockfish_15_x64_avx2.exe")
-        self.engine.set_skill_level(15)
-        #self.move = 0
+        self.engine.set_elo_rating(0)
     def makeMove(self, game):
         move = self.engine.get_best_move()
-        #move = ['b7b5', 'b5c4', 'c4c3', 'c3c2', 'c2c1', 'c1c6'][self.move]
-        #self.move += 1
         start = move[0:2]
         end = move[2:4]
         if end in game.board.occupied:
@@ -24,4 +21,6 @@ class stockfishBox:
         game.board.tiles[start].piece.pos = end
         game.board.tiles[start].piece.updatePos(game)
         game.update(move)
+        if move[-1] in ['q', 'r', 'b', 'h']:
+            game.promote(end, move[-1])
         game.turn = 'W'

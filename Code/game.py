@@ -97,6 +97,52 @@ class gameClass:
                 piece.name = pieceName + '8' + 'B'
                 piece.pos = pieceName[1] + '8'
                 self.pieceReset(piece, self.blackPieces)
+    def promote(self, position, piece = 'q'):
+        name = self.board.tiles[position].piece.name # 'W' or 'B'
+        if name[3] == 'W':
+            if piece == 'q':
+                piece = queenClass('W')
+                piece.name = 'q' + position + 'W'
+                piece.pos = position
+                self.pieceReset(piece, self.whitePieces)
+            elif piece == 'r':
+                piece = rookClass('W')
+                piece.name = 'r' + position + 'W'
+                piece.pos = position
+                self.pieceReset(piece, self.whitePieces)
+            elif piece == 'b':
+                piece = bishopClass('B')
+                piece.name = 'b' + position + 'B'
+                piece.pos = position
+                self.pieceReset(piece, self.whitePieces)
+            elif piece == 'h':
+                piece = horseClass('W')
+                piece.name = 'h' + position + 'W'
+                piece.pos = position
+                self.pieceReset(piece, self.whitePieces)
+            del self.whitePieces[name]
+        else:
+            if piece == 'q':
+                piece = queenClass('B')
+                piece.name = 'q' + position + 'B'
+                piece.pos = position
+                self.pieceReset(piece, self.blackPieces)
+            elif piece == 'r':
+                piece = rookClass('B')
+                piece.name = 'r' + position + 'B'
+                piece.pos = position
+                self.pieceReset(piece, self.blackPieces)
+            elif piece == 'b':
+                piece = bishopClass('B')
+                piece.name = 'b' + position + 'B'
+                piece.pos = position
+                self.pieceReset(piece, self.blackPieces)
+            elif piece == 'h':
+                piece = horseClass('B')
+                piece.name = 'h' + position + 'B'
+                piece.pos = position
+                self.pieceReset(piece, self.blackPieces)
+            del self.blackPieces[name]
     def render(self, window):
         if self.turn == 'B':
             self.timer += window.tick
@@ -113,18 +159,6 @@ class gameClass:
         pieces = {**self.whitePieces, **self.blackPieces}
         for pieceName in pieces:
             self.board.occupied.append(pieces[pieceName].pos)
-            if pieceName[0] == 'p' and (pieces[pieceName].pos[1] == '8' or pieces[pieceName].pos[1] == '1'):
-                pieces[pieceName].captured = True
-                if pieces[pieceName][3] == 'W':
-                    piece = queenClass('W')
-                    piece.name = 'q' + pieces[pieceName].pos + 'W'
-                    piece.pos = pieces[pieceName].pos
-                    self.pieceReset(piece, self.whitePieces)
-                else:
-                    piece = queenClass('B')
-                    piece.name = 'q' + pieces[pieceName].pos + 'B'
-                    piece.pos = pieces[pieceName].pos
-                    self.pieceReset(piece, self.blackPieces)
             if pieces[pieceName].captured:
                 if pieceName in self.whitePieces:
                     del self.whitePieces[pieceName]
