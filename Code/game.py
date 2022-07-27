@@ -15,8 +15,16 @@ class gameClass:
     def update(self, move):
         self.moves.append(move)
         self.stockfish.engine.set_position(self.moves)
+    def setDifficulty(self, difficulty):
+        if difficulty == "easy":
+            self.stockfish.engine.set_skill_level(1)
+        elif difficulty == "medium":
+            self.stockfish.engine.set_skill_level(5)
+        else:
+            self.stockfish.engine.set_skill_level(9)
     def reset(self):
         self.mouseHolding = None
+        self.checkmate = None
         self.turn = 'W'
         self.stockfish.engine.set_position([])
         self.timer = 0
@@ -97,8 +105,7 @@ class gameClass:
                 piece.name = pieceName + '8' + 'B'
                 piece.pos = pieceName[1] + '8'
                 self.pieceReset(piece, self.blackPieces)
-    def promote(self, position, piece = 'q'):
-        name = self.board.tiles[position].piece.name # 'W' or 'B'
+    def promote(self, position, name, piece = 'q'):
         if name[3] == 'W':
             if piece == 'q':
                 piece = queenClass('W')
@@ -144,43 +151,46 @@ class gameClass:
                 self.pieceReset(piece, self.blackPieces)
             del self.blackPieces[name]
     def render(self, window):
-        if self.turn == 'B':
-            self.timer += window.tick
-            if self.timer > 600:
-                self.stockfish.makeMove(self)
+        if self.checkmate == None:
+            if self.turn == 'B':
+                self.timer += window.tick
+                if self.timer > 600:
+                    self.stockfish.makeMove(self)
+            else:
+                self.timer = 0
+            self.board.render(window, self)
+            self.board.highlights = []
+            self.board.occupied = []
+            self.board.bControl = []
+            pieces = {**self.whitePieces, **self.blackPieces}
+            for pieceName in pieces:
+                self.board.occupied.append(pieces[pieceName].pos)
+                if pieces[pieceName].captured:
+                    if pieceName in self.whitePieces:
+                        del self.whitePieces[pieceName]
+                    else:
+                        del self.blackPieces[pieceName]
+            for pieceName in pieces:
+                pieces[pieceName].render(window, self)
+            movelist = []
+            if self.turn == 'W':
+                for pieceName in self.whitePieces:
+                    movelist += self.whitePieces[pieceName].getValidSquares(self)
+                if len(movelist) == 0:
+                    self.checkmate = "black"
+            else:
+                for pieceName in self.blackPieces:
+                    movelist += self.blackPieces[pieceName].getValidSquares(self)
+                if len(movelist) == 0:
+                    self.checkmate = "white"
+            if self.mouseHolding != None:
+                piece = pieces[self.mouseHolding]
+                piece.render(window, self)
+                if piece.name[3] == self.turn and self.turn == 'W':
+                    self.board.highlights += piece.getValidSquares(self)
+            elif len(self.moves) > 0 and self.turn == 'W':
+                self.board.highlights.append(self.moves[-1][2:4])
         else:
-            self.timer = 0
-        if window.input["spaceT"]:
-            self.reset()
-        self.board.render(window, self)
-        self.board.highlights = []
-        self.board.occupied = []
-        self.board.bControl = []
-        pieces = {**self.whitePieces, **self.blackPieces}
-        for pieceName in pieces:
-            self.board.occupied.append(pieces[pieceName].pos)
-            if pieces[pieceName].captured:
-                if pieceName in self.whitePieces:
-                    del self.whitePieces[pieceName]
-                else:
-                    del self.blackPieces[pieceName]
-        for pieceName in pieces:
-            pieces[pieceName].render(window, self)
-        movelist = []
-        if self.turn == 'W':
-            for pieceName in self.whitePieces:
-                movelist += self.whitePieces[pieceName].getValidSquares(self)
-            if len(movelist) == 0:
-                print("Black Wins by Checkmate!")
-        else:
-            for pieceName in self.blackPieces:
-                movelist += self.blackPieces[pieceName].getValidSquares(self)
-            if len(movelist) == 0:
-                print("White Wins by Checkmate!")
-        if self.mouseHolding != None:
-            piece = pieces[self.mouseHolding]
-            piece.render(window, self)
-            if piece.name[3] == self.turn and self.turn == 'W':
-                self.board.highlights += piece.getValidSquares(self)
-        elif len(self.moves) > 0 and self.turn == 'W':
-            self.board.highlights.append(self.moves[-1][2:4])
+            pieces = {**self.whitePieces, **self.blackPieces}
+            for pieceName in pieces:
+                pieces[pieceName].render(window, self)

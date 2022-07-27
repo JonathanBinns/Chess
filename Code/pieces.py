@@ -47,7 +47,7 @@ class pieceClass:
                 game.specialCapture = {}
         self.updatePos(game)
         if promotion != '':
-            game.promote(game.board.mouseOver, 'q')
+            game.promote(game.board.mouseOver, self.name, 'q')
     def castleRule(self, game):
         if self.type[0] == 'k' and self.pos == 'e' + self.pos[1] and game.board.mouseOver == 'g' + self.pos[1]:
             game.board.tiles['h' + self.pos[1]].piece.pos = 'f' + self.pos[1]

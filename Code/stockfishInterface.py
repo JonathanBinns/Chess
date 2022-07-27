@@ -3,7 +3,6 @@ from stockfish import Stockfish
 class stockfishBox:
     def __init__(self):
         self.engine = Stockfish(path = "stockfish/stockfish_15_x64_avx2.exe")
-        self.engine.set_elo_rating(0)
     def makeMove(self, game):
         move = self.engine.get_best_move()
         start = move[0:2]
