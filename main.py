@@ -8,6 +8,9 @@ UI = uiClass()
 gameState = "menu"
 
 # the main loop of the program
+# whats happening on the screen is controlled by the gameState, which is a string that switched between "menu" and "play"
+# the menu is where the bot difficulty is set
+# the game is where the chess board and all the pieces are rendered and all the complex processes happen
 while window.isRunning():
     window.processing()
     window.screen.fill((90, 70, 50))

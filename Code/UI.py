@@ -1,6 +1,14 @@
 import pygame as pg
 
+# the buttons are simple: they return a value when clicked
+# they contain two surface objects: self.image and self.imageSmall
+# the image appears small unless the mouse is hovering over it, which helps indicate interactability to the user
+# having buttons of multiple sizes became complicated, so it was necessary to add a scale value to change the overall scale of both images
+# scale needed to be factored into screen blitting, since screen blitting is based on the topleft of the image
 class buttonClass:
+    # buttons are created as attributes for the uiClass
+    # they are given some initial values that determine what image the button gets, where the button goes, and how big the button is
+    # it also sets the self.clicked boolean to False
     def __init__(self, name, coords, scale = 500):
         self.image = pg.transform.scale(pg.image.load("Assets/UI/" + name + ".png"), (scale, scale))
         self.imageSmall = pg.transform.scale(pg.image.load("Assets/UI/" + name + ".png"), (scale - 100, scale - 100))
@@ -29,6 +37,8 @@ class buttonClass:
         else:
             self.size = "small"
 
+# the UI object is responsible for all the buttons as well as the display of pieces captured during the game
+# the self.result value is essential for switching the gameState in the main loop
 class uiClass:
     def __init__(self):
         self.reset()
