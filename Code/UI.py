@@ -44,6 +44,7 @@ class uiClass:
             button = buttonClass(name, menuButtonDict[name])
             self.menuButtons.append(button)
         # gameUI stuff
+        self.checkmate = pg.image.load("Assets/UI/checkmate.png")
         resignButtonDict = {
         "resignmenu": {
         "pos": (1650, 780),
@@ -63,6 +64,7 @@ class uiClass:
             self.pieces[name] = pg.transform.scale(pg.image.load("Assets/" + name + ".PNG"), (60, 60))
     def reset(self):
         self.result = ""
+        self.timer = 0
         ref = {}
         self.whiteCaptured = {
         "pawns": 0,
@@ -100,6 +102,10 @@ class uiClass:
             if pieceName[1] == 'W':
                 iteration += 2
         return yDeltaReturn
+    def renderCheckmateScreen(self, window):
+        self.timer += window.tick
+        if self.timer > 1500:
+            window.screen.blit(self.checkmate, (500, 250))
     def renderGameUI(self, window):
         for button in self.resignButtons:
             button.render(window)

@@ -29,4 +29,4 @@ while window.isRunning():
             gameState = "menu"
             UI.reset()
         if game.checkmate:
-            print(game.checkmate)
+            UI.renderCheckmateScreen(window)
