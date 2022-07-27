@@ -19,8 +19,8 @@ while window.isRunning():
             gameState = "play"
             UI.reset()
     elif gameState == "play":
-        game.render(window)
-        UI.renderGameUI(window, game)
+        game.render(window, UI)
+        UI.renderGameUI(window)
         if UI.result == "resignreset":
             game.reset()
             UI.reset()

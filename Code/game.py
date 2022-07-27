@@ -150,7 +150,7 @@ class gameClass:
                 piece.pos = position
                 self.pieceReset(piece, self.blackPieces)
             del self.blackPieces[name]
-    def render(self, window):
+    def render(self, window, UI):
         if self.checkmate == None:
             if self.turn == 'B':
                 self.timer += window.tick
@@ -163,13 +163,22 @@ class gameClass:
             self.board.occupied = []
             self.board.bControl = []
             pieces = {**self.whitePieces, **self.blackPieces}
+            translation = {
+            'p': "pawns",
+            'h': "horses",
+            'b': "bishops",
+            'r': "rooks",
+            'q': "queens"
+            } # used for communication between game and UI
             for pieceName in pieces:
                 self.board.occupied.append(pieces[pieceName].pos)
                 if pieces[pieceName].captured:
                     if pieceName in self.whitePieces:
                         del self.whitePieces[pieceName]
+                        UI.blackCaptured[translation[pieceName[0]]] += 1
                     else:
                         del self.blackPieces[pieceName]
+                        UI.whiteCaptured[translation[pieceName[0]]] += 1
             for pieceName in pieces:
                 pieces[pieceName].render(window, self)
             movelist = []
@@ -191,6 +200,10 @@ class gameClass:
             elif len(self.moves) > 0 and self.turn == 'W':
                 self.board.highlights.append(self.moves[-1][2:4])
         else:
+            self.board.render(window, self)
             pieces = {**self.whitePieces, **self.blackPieces}
             for pieceName in pieces:
                 pieces[pieceName].render(window, self)
+            if self.mouseHolding != None:
+                piece = pieces[self.mouseHolding]
+                piece.render(window, self)

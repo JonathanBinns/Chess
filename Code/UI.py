@@ -58,27 +58,76 @@ class uiClass:
         for name in resignButtonDict:
             button = buttonClass(name, resignButtonDict[name]["pos"], resignButtonDict[name]["scale"])
             self.resignButtons.append(button)
+        self.pieces = {}
+        for name in ['pW', 'pB', 'hW', 'hB', 'bW', 'bB', 'rW', 'rB', 'qW', 'qB']:
+            self.pieces[name] = pg.transform.scale(pg.image.load("Assets/" + name + ".PNG"), (60, 60))
     def reset(self):
         self.result = ""
-        ref = {
-        "pawns": 8,
-        "horses": 2,
-        "bishops": 2,
-        "rooks": 2,
-        "queen": 1
+        ref = {}
+        self.whiteCaptured = {
+        "pawns": 0,
+        "horses": 0,
+        "bishops": 0,
+        "rooks": 0,
+        "queens": 0
         }
-        self.whiteCaptured = ref
-        self.blackCaptured = ref
+        self.blackCaptured = {
+        "pawns": 0,
+        "horses": 0,
+        "bishops": 0,
+        "rooks": 0,
+        "queens": 0
+        }
     def renderMenu(self, window):
         window.screen.blit(self.ChooseDifficulty, (650, 200))
         for button in self.menuButtons:
             button.render(window)
             if button.clicked:
                 self.result = button.name
-    def renderGameUI(self, window, game):
+    def pieceRow(self, window, pieceName, pieceNum, xDelta, yDelta = 0):
+        image = self.pieces[pieceName]
+        iteration = pieceNum
+        yDeltaReturn = 0
+        start = 1060
+        if pieceName[1] == 'W':
+            start = -38
+            iteration *= -1
+            yDelta *= -1
+        while iteration != 0:
+            window.screen.blit(image, (350 - xDelta, start - (58 * iteration) - yDelta))
+            yDeltaReturn += 58
+            iteration -= 1
+            if pieceName[1] == 'W':
+                iteration += 2
+        return yDeltaReturn
+    def renderGameUI(self, window):
         for button in self.resignButtons:
             button.render(window)
             if button.clicked:
                 self.result = button.name
-
-        ## add captured stuff
+        xDelta = 0
+        if self.whiteCaptured["pawns"] > 0:
+            self.pieceRow(window, 'pB', self.whiteCaptured["pawns"], xDelta)
+            xDelta += 58
+        if self.whiteCaptured["horses"] > 0 or self.whiteCaptured["bishops"] > 0:
+            yDelta = self.pieceRow(window, 'bB', self.whiteCaptured["bishops"], xDelta)
+            self.pieceRow(window, 'hB', self.whiteCaptured["horses"], xDelta, yDelta)
+            xDelta += 58
+        if self.whiteCaptured["rooks"] > 0:
+            self.pieceRow(window, 'rB', self.whiteCaptured["rooks"], xDelta)
+            xDelta += 58
+        if self.whiteCaptured["queens"] > 0:
+            self.pieceRow(window, 'qB', self.whiteCaptured["queens"], xDelta)
+        xDelta = 0
+        if self.blackCaptured["pawns"] > 0:
+            self.pieceRow(window, 'pW', self.blackCaptured["pawns"], xDelta)
+            xDelta += 58
+        if self.blackCaptured["horses"] > 0 or self.blackCaptured["bishops"] > 0:
+            yDelta = self.pieceRow(window, 'bW', self.blackCaptured["bishops"], xDelta)
+            self.pieceRow(window, 'hW', self.blackCaptured["horses"], xDelta, yDelta)
+            xDelta += 58
+        if self.blackCaptured["rooks"] > 0:
+            self.pieceRow(window, 'rW', self.blackCaptured["rooks"], xDelta)
+            xDelta += 58
+        if self.blackCaptured["queens"] > 0:
+            self.pieceRow(window, 'qW', self.blackCaptured["queens"], xDelta)
