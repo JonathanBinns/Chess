@@ -18,9 +18,13 @@ class buttonClass:
         self.y = coords[1]
         self.clicked = False
         self.scale = scale
+    # get_rect is a simple function, it sets the self.rect attribute to the correct place for collision purposes
+    # I needed to implement the scale variable to account for differently sized buttons
     def get_rect(self):
         scale = self.scale
         self.rect = self.image.get_rect(topleft = (self.x - (500 - scale) / 2, self.y - (500 - scale) / 2))
+    # render handles the drawing of and functionality of the button
+    # when clicked, the button's .clicked value is set to True and the information can be interpreted appropriately at higher levels
     def render(self, window):
         scale = self.scale
         if self.size == "small":
@@ -40,9 +44,11 @@ class buttonClass:
 # the UI object is responsible for all the buttons as well as the display of pieces captured during the game
 # the self.result value is essential for switching the gameState in the main loop
 class uiClass:
+    # because the UI object is responsible for rendering the initial difficulty selection menu as well as
+    # the buttons and piece capture display in the game screen, I seperated the init into two sections.
     def __init__(self):
         self.reset()
-        # menu stuff
+        # menu attributes
         self.ChooseDifficulty = pg.image.load("Assets/UI/ChooseBotDifficulty.png")
         menuButtonDict = {
         "easy": (110, 400),
@@ -53,7 +59,7 @@ class uiClass:
         for name in menuButtonDict:
             button = buttonClass(name, menuButtonDict[name])
             self.menuButtons.append(button)
-        # gameUI stuff
+        # gameUI attributes
         self.checkmate = pg.image.load("Assets/UI/checkmate.png")
         resignButtonDict = {
         "resignmenu": {
@@ -72,6 +78,7 @@ class uiClass:
         self.pieces = {}
         for name in ['pW', 'pB', 'hW', 'hB', 'bW', 'bB', 'rW', 'rB', 'qW', 'qB']:
             self.pieces[name] = pg.transform.scale(pg.image.load("Assets/" + name + ".PNG"), (60, 60))
+    # it
     def reset(self):
         self.result = ""
         self.timer = 0
