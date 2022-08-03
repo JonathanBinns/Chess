@@ -16,11 +16,14 @@ while window.isRunning():
     window.screen.fill((90, 70, 50))
     if gameState == "menu":
         UI.renderMenu(window)
-        if UI.result != "":
+        if UI.result != "" and UI.result != "quit": ##jon your comments suck
             game.reset()
             game.setDifficulty(UI.result)
             gameState = "play"
             UI.reset()
+        elif UI.result == "quit":
+            for key in ["left shift" , "escapeT"]:
+                window.input[key] = True
     elif gameState == "play":
         game.render(window, UI)
         UI.renderGameUI(window)

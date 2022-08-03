@@ -2,26 +2,35 @@ from Code.pieces import *
 from Code.board import boardClass
 from Code.stockfishInterface import stockfishBox
 
+# the game object handles all the logic at the level above the pieces
+# it takes in all the smaller objects- all the pieces and the tiles and the board- and it operates the rules of the game
 class gameClass:
+    # in initialization, the board and stockfish are initialized and saved as attributes to the game
     def __init__(self):
         self.board = boardClass()
         self.stockfish = stockfishBox()
         self.reset()
+    # pieceReset allows for the game to put a piece on the board and reset its location and rectangle correctly
     def pieceReset(self, piece, dict):
         piece.x = self.board.tiles[piece.pos].x + self.board.coords[0]
         piece.y = self.board.tiles[piece.pos].y + self.board.coords[1]
         piece.get_rect()
         dict[piece.name] = piece
+    # update puts a move into the list of moves and the gives the updated list to stockfish
     def update(self, move):
         self.moves.append(move)
         self.stockfish.engine.set_position(self.moves)
+    # this is fairly self-explanatory: the difficulty of the game is determined by the skill level of stockfish's AI
     def setDifficulty(self, difficulty):
         if difficulty == "easy":
-            self.stockfish.engine.set_skill_level(1)
+            self.stockfish.engine.set_skill_level(0)
         elif difficulty == "medium":
             self.stockfish.engine.set_skill_level(5)
         else:
             self.stockfish.engine.set_skill_level(9)
+    # resetting the game object does two things
+    # the first thing is that it resets the variables in use for the game to default values
+    # the second thing it does is create all 32 pieces procedurally for both sides of the board
     def reset(self):
         self.mouseHolding = None
         self.checkmate = None

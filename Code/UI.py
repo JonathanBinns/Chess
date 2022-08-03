@@ -59,6 +59,8 @@ class uiClass:
         for name in menuButtonDict:
             button = buttonClass(name, menuButtonDict[name])
             self.menuButtons.append(button)
+        button = buttonClass("quit", (150, 150), 250)
+        self.menuButtons.append(button)
         # gameUI attributes
         self.checkmate = pg.image.load("Assets/UI/checkmate.png")
         resignButtonDict = {
