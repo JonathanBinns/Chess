@@ -46,6 +46,7 @@ class buttonClass:
 class uiClass:
     # because the UI object is responsible for rendering the initial difficulty selection menu as well as
     # the buttons and piece capture display in the game screen, I seperated the init into two sections.
+    # in these two sections, the different assets are saved and preloaded to be used later in the loop
     def __init__(self):
         self.reset()
         # menu attributes
@@ -80,7 +81,8 @@ class uiClass:
         self.pieces = {}
         for name in ['pW', 'pB', 'hW', 'hB', 'bW', 'bB', 'rW', 'rB', 'qW', 'qB']:
             self.pieces[name] = pg.transform.scale(pg.image.load("Assets/" + name + ".PNG"), (60, 60))
-    # it
+    # resetting is called to initialize the object and then to put it back to a default state after that
+    # the two captured dictionaries keep track of how many pieces were captured by both players
     def reset(self):
         self.result = ""
         self.timer = 0
@@ -99,12 +101,16 @@ class uiClass:
         "rooks": 0,
         "queens": 0
         }
+    # renderMenu simply draws the assets for the main menu to the screen in the location that was specified and saved during initialization
+    # the menu consists of four buttons: the three difficulty buttons and then the quit button
     def renderMenu(self, window):
         window.screen.blit(self.ChooseDifficulty, (650, 200))
         for button in self.menuButtons:
             button.render(window)
             if button.clicked:
                 self.result = button.name
+    # pieceRow renders the smaller icon of the pieces captured to the left side of the screen
+    # pieceRow is used as a part of renderGameUI
     def pieceRow(self, window, pieceName, pieceNum, xDelta, yDelta = 0):
         image = self.pieces[pieceName]
         iteration = pieceNum
@@ -121,10 +127,11 @@ class uiClass:
             if pieceName[1] == 'W':
                 iteration += 2
         return yDeltaReturn
-    def renderCheckmateScreen(self, window):
-        self.timer += window.tick
-        if self.timer > 1500:
-            window.screen.blit(self.checkmate, (500, 250))
+    # there are two buttons to render during the game:
+    # one of them resigns and resets the game, the other resigns and returns the player to the menu
+    # on the left side, any captured pieces are displayed for both players
+    # xDelta is used to space out the pieces horizontally in an even way
+    # pieceRow handles the vertical spacing for the pieces
     def renderGameUI(self, window):
         for button in self.resignButtons:
             button.render(window)
@@ -156,3 +163,9 @@ class uiClass:
             xDelta += 58
         if self.blackCaptured["queens"] > 0:
             self.pieceRow(window, 'qW', self.blackCaptured["queens"], xDelta)
+    # renderCheckmateScreen is a simple function, it just draws the image that informs the player the game is over
+    # the timer is there to add a short time buffer between the last move being made and the checkmate screen being drawn
+    def renderCheckmateScreen(self, window):
+        self.timer += window.tick
+        if self.timer > 1500:
+            window.screen.blit(self.checkmate, (500, 250))

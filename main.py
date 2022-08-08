@@ -16,7 +16,7 @@ while window.isRunning():
     window.screen.fill((90, 70, 50))
     if gameState == "menu":
         UI.renderMenu(window)
-        if UI.result != "" and UI.result != "quit": ##jon your comments suck
+        if UI.result != "" and UI.result != "quit":
             game.reset()
             game.setDifficulty(UI.result)
             gameState = "play"
