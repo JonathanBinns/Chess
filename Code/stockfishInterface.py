@@ -1,8 +1,14 @@
+import os
 from stockfish import Stockfish
 
 class stockfishBox:
     def __init__(self):
-        self.engine = Stockfish(path = "stockfish/stockfish_15_x64_avx2.exe")
+        self.setEngine()
+    def setEngine(self):
+        if os.name == "nt":
+            self.engine = Stockfish(path = "stockfish/stockfish_15_x64_avx2.exe")
+        else:
+            self.engine = Stockfish(path = "stockfish/stockfish_15_x64_avx2")
     def makeMove(self, game):
         move = self.engine.get_best_move()
         start = move[0:2]

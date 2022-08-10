@@ -1,4 +1,5 @@
 import pygame as pg
+import os
 
 # the buttons are simple: they return a value when clicked
 # they contain two surface objects: self.image and self.imageSmall
@@ -63,7 +64,7 @@ class uiClass:
         button = buttonClass("quit", (150, 150), 250)
         self.menuButtons.append(button)
         # gameUI attributes
-        self.checkmate = pg.image.load("Assets/UI/checkmate.png")
+        self.checkmate = pg.image.load(os.path.join("Assets", "UI", "checkmate.png"))
         resignButtonDict = {
         "resignmenu": {
         "pos": (1650, 780),

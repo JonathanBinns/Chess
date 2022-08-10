@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from Code.window import windowClass
 from Code.game import gameClass
 from Code.UI import uiClass
