@@ -23,11 +23,11 @@ class gameClass:
     # this is fairly self-explanatory: the difficulty of the game is determined by the skill level of stockfish's AI
     def setDifficulty(self, difficulty):
         if difficulty == "easy":
-            self.stockfish.engine.set_skill_level(0)
+            self.stockfish.setDifficulty(7)
         elif difficulty == "medium":
-            self.stockfish.engine.set_skill_level(5)
-        else:
-            self.stockfish.engine.set_skill_level(9)
+            self.stockfish.setDifficulty(4)
+        else: # hardest diff
+            self.stockfish.setDifficulty(3)
     # resetting the game object does two things
     # the first thing is that it resets the variables in use for the game to default values
     # the second thing it does is create all 32 pieces procedurally for both sides of the board

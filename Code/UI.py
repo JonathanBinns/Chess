@@ -1,5 +1,4 @@
 import pygame as pg
-import os
 
 # the buttons are simple: they return a value when clicked
 # they contain two surface objects: self.image and self.imageSmall
@@ -50,6 +49,7 @@ class uiClass:
     # in these two sections, the different assets are saved and preloaded to be used later in the loop
     def __init__(self):
         self.reset()
+        self.menuReturn = False
         # menu attributes
         self.ChooseDifficulty = pg.image.load("Assets/UI/ChooseBotDifficulty.png")
         menuButtonDict = {
@@ -64,7 +64,7 @@ class uiClass:
         button = buttonClass("quit", (150, 150), 250)
         self.menuButtons.append(button)
         # gameUI attributes
-        self.checkmate = pg.image.load(os.path.join("Assets", "UI", "checkmate.png"))
+        self.checkmate = pg.image.load("Assets/UI/checkmate.png")
         resignButtonDict = {
         "resignmenu": {
         "pos": (1650, 780),
@@ -87,6 +87,7 @@ class uiClass:
     def reset(self):
         self.result = ""
         self.timer = 0
+        self.mouseUnclicked = False
         ref = {}
         self.whiteCaptured = {
         "pawns": 0,
@@ -106,10 +107,14 @@ class uiClass:
     # the menu consists of four buttons: the three difficulty buttons and then the quit button
     def renderMenu(self, window):
         window.screen.blit(self.ChooseDifficulty, (650, 200))
-        for button in self.menuButtons:
-            button.render(window)
-            if button.clicked:
-                self.result = button.name
+        if self.mouseUnclicked:
+            for button in self.menuButtons:
+                button.render(window)
+                if button.clicked:
+                    self.result = button.name
+        else:
+            if not window.mouse['m1']:
+                self.mouseUnclicked = True
     # pieceRow renders the smaller icon of the pieces captured to the left side of the screen
     # pieceRow is used as a part of renderGameUI
     def pieceRow(self, window, pieceName, pieceNum, xDelta, yDelta = 0):
@@ -138,6 +143,8 @@ class uiClass:
             button.render(window)
             if button.clicked:
                 self.result = button.name
+                if self.result == "resignmenu":
+                    self.menuReturn = True
         xDelta = 0
         if self.whiteCaptured["pawns"] > 0:
             self.pieceRow(window, 'pB', self.whiteCaptured["pawns"], xDelta)

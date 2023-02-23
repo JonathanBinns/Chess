@@ -1,16 +1,15 @@
-import os
 from stockfish import Stockfish
+import random as r
 
 class stockfishBox:
     def __init__(self):
-        self.setEngine()
-    def setEngine(self):
-        if os.name == "nt":
-            self.engine = Stockfish(path = "stockfish/stockfish_15_x64_avx2.exe")
-        else:
-            self.engine = Stockfish(path = "stockfish/stockfish_15_x64_avx2")
+        self.engine = Stockfish(path = "stockfish/stockfish_15_x64_avx2.exe")
+        self.difficulty = 6 # the lower this number is, the more accurate the moves the bot makes
+    def setDifficulty(self, num):
+        self.difficulty = num
     def makeMove(self, game):
-        move = self.engine.get_best_move()
+        moveList = self.engine.get_top_moves(self.difficulty)
+        move = moveList[r.randint(1, len(moveList)) - 1]['Move']
         start = move[0:2]
         end = move[2:4]
         if end in game.board.occupied:
@@ -28,4 +27,5 @@ class stockfishBox:
         game.update(move)
         if move[-1] in ['q', 'r', 'b', 'h']:
             game.promote(end, move[-1])
+        game.board.occupied.remove(start)
         game.turn = 'W'

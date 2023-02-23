@@ -33,7 +33,7 @@ class boardClass:
         vert = ['1', '2', '3', '4', '5', '6', '7', '8']
         horz = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         self.colors = {
-        "black": (45, 20, 0),
+        "black": (0, 45, 120),
         "white": (250, 225, 215)
         }
         currentColor = "black"
@@ -69,13 +69,13 @@ class boardClass:
             if tile.highlight:
                 percent = (1 + math.sin(self.timer)) / 4
                 if tile.type == "white":
-                    R = (65 * percent) + (250 * (1 - percent))
-                    G = (35 * percent) + (225 * (1 - percent))
-                    B = (20 * percent) + (215 * (1 - percent))
-                else:
-                    R = (225 * percent) + (45 * (1 - percent))
-                    G = (195 * percent) + (20 * (1 - percent))
-                    B = (185 * percent) + (0 * (1 - percent))
+                    R = (35 * percent) + (200 * (1 - percent))
+                    G = (35 * percent) + (200 * (1 - percent))
+                    B = (50 * percent) + (250 * (1 - percent))
+                elif tile.type == "black":
+                    R = (225 * percent) + (0 * (1 - percent))
+                    G = (195 * percent) + (45 * (1 - percent))
+                    B = (185 * percent) + (120 * (1 - percent))
                 tile.color = (R, G, B)
             else:
                 tile.color = self.colors[tile.type]

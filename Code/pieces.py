@@ -1,10 +1,16 @@
 import pygame as pg
 
+# pieceClass is the general class that is the parent for all piece classes
+# it includes the basic functionality needed for every piece, and provides the interaction with the mouse
 class pieceClass:
+    # in initialization, each piece is given its basic attributes
+    # the first and most important of these is the self.image attribute
+    # this is a pygame surface that is
     def __init__(self, type):
         self.size = 135
         self.image = pg.transform.scale(pg.image.load("Assets/" + type + ".PNG"), (self.size, self.size))
         self.type = type
+        self.color = self.type[1]
         self.vert = ['1', '2', '3', '4', '5', '6', '7', '8']
         self.horz = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         self.captured = False
@@ -28,6 +34,7 @@ class pieceClass:
         game.mouseHolding = None
         promotion = ''
         if game.board.mouseOver in self.getValidSquares(game) and game.turn == self.name[3] and game.turn == 'W': # this last condition limits the moveable pieces to white
+            game.board.occupied.remove(self.pos)
             self.activated = True
             if self.name[0] == 'p' and game.board.mouseOver[1] == '8':
                 promotion = 'q'
@@ -66,14 +73,23 @@ class pieceClass:
             if not window.mouse["m1"]:
                 self.dropPiece(game)
             self.get_rect()
+    def addEnPassantMoves(self, validList):
+        validPlusEnPassant = validList
+        enPassantMoves = []
+        if int(self.pos[1]) < 8:
+            if self.pos[0] != 'h':
+                enPassantMoves.append(self.horz[self.horz.index(self.pos[0]) + 1] + str(int(self.pos[1]) + 1))
+            if self.pos[0] != 'a':
+                enPassantMoves.append(self.horz[self.horz.index(self.pos[0]) - 1] + str(int(self.pos[1]) + 1))
+        return validPlusEnPassant + enPassantMoves
     def legalCheck(self, game, validList, promoteException = ''):
         engine = game.stockfish.engine
         valid = []
-        for pos in validList:
+        # adding bug-less en passant moves
+        for pos in self.addEnPassantMoves(validList):
             if engine.is_move_correct(self.pos + pos + promoteException):
                 valid.append(pos)
         return valid
-
 
 class pawnClass(pieceClass):
     def __init__(self, color):
@@ -107,17 +123,17 @@ class pawnClass(pieceClass):
                 valid.append(pos)
         # en passant
         game.specialCapture = {}
-        if self.name[3] == 'W' and self.pos[1] == '5':
-            left = self.horz.index(self.pos[0]) - 1
-            if left >= 0 and not pos in game.board.occupied and self.horz[left] + '5' in game.board.occupied and game.board.tiles[self.horz[left] + '5'].piece.name[3] == 'B' and game.board.tiles[self.horz[left] + '5'].piece.name[0] == 'p' and game.moves[-1][1] == '7' and game.moves[-1][3] == '5':
-                pos = self.horz[left] + '6'
-                valid.append(pos)
-                game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[left] + '5'
-            right = self.horz.index(self.pos[0]) + 1
-            if right < 8 and not pos in game.board.occupied and self.horz[right] + '5' in game.board.occupied and game.board.tiles[self.horz[right] + '5'].piece.name[3] == 'B' and game.board.tiles[self.horz[right] + '5'].piece.name[0] == 'p' and game.moves[-1][1] == '7' and game.moves[-1][3] == '5':
-                pos = self.horz[right] + '6'
-                valid.append(pos)
-                game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[right] + '5'
+        #if self.name[3] == 'W' and self.pos[1] == '5':
+       #     left = self.horz.index(self.pos[0]) - 1
+       #     if left >= 0 and not pos in game.board.occupied and self.horz[left] + '5' in game.board.occupied and game.board.tiles[self.horz[left] + '5'].piece.name[3] == 'B' and game.board.tiles[self.horz[left] + '5'].piece.name[0] == 'p' and game.moves[-1][1] == '7' and game.moves[-1][3] == '5':
+       #         pos = self.horz[left] + '6'
+        #        valid.append(pos)
+       #         game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[left] + '5'
+       #     right = self.horz.index(self.pos[0]) + 1
+       #     if right < 8 and not pos in game.board.occupied and self.horz[right] + '5' in game.board.occupied and game.board.tiles[self.horz[right] + '5'].piece.name[3] == 'B' and game.board.tiles[self.horz[right] + '5'].piece.name[0] == 'p' and game.moves[-1][1] == '7' and game.moves[-1][3] == '5':
+       #         pos = self.horz[right] + '6'
+       #         valid.append(pos)
+       #         game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[right] + '5'
         promotion = ''
         if self.name[3] == 'W' and self.pos[1] == '7':
             promotion = 'q'
@@ -299,7 +315,7 @@ class kingClass(pieceClass):
         # queenside castle
         y = self.pos[1]
         spacesCleared = not 'b' + y in game.board.occupied and not 'c' + y in game.board.occupied and not 'd' + y in game.board.occupied and 'a' + y in game.board.occupied
-        if not self.activated and spacesCleared and not game.board.tiles['a' + y].piece.activated:
+        if not self.activated and spacesCleared and game.board.tiles['a' + y].piece != None and not game.board.tiles['a' + y].piece.activated:
             valid.append('c' + y)
         # all movements around
         for distanceSet in [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]:
