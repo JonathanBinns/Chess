@@ -81,7 +81,6 @@ class boardClass:
                 tile.color = self.colors[tile.type]
             tile.highlight = False
             if tileName in self.occupied:
-                piece = None
                 pieces = {**game.whitePieces, **game.blackPieces}
                 for pieceName in pieces:
                     if pieces[pieceName].pos == tileName:

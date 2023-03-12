@@ -73,20 +73,27 @@ class pieceClass:
             if not window.mouse["m1"]:
                 self.dropPiece(game)
             self.get_rect()
-    def addEnPassantMoves(self, validList):
+    def addEnPassantMoves(self, game, validList):
         validPlusEnPassant = validList
         enPassantMoves = []
-        if int(self.pos[1]) < 8:
+        game.specialCapture = {}
+        if int(self.pos[1]) < 8 and self.type[0] == 'p':
             if self.pos[0] != 'h':
-                enPassantMoves.append(self.horz[self.horz.index(self.pos[0]) + 1] + str(int(self.pos[1]) + 1))
+                right = self.horz.index(self.pos[0]) + 1
+                pos = self.horz[right] + '6'
+                enPassantMoves.append(self.horz[right] + str(int(self.pos[1]) + 1))
+                game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[right] + '5'
             if self.pos[0] != 'a':
-                enPassantMoves.append(self.horz[self.horz.index(self.pos[0]) - 1] + str(int(self.pos[1]) + 1))
+                left = self.horz.index(self.pos[0]) - 1
+                pos = self.horz[left] + '6'
+                enPassantMoves.append(self.horz[left] + str(int(self.pos[1]) + 1))
+                game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[left] + '5'
         return validPlusEnPassant + enPassantMoves
     def legalCheck(self, game, validList, promoteException = ''):
         engine = game.stockfish.engine
         valid = []
         # adding bug-less en passant moves
-        for pos in self.addEnPassantMoves(validList):
+        for pos in self.addEnPassantMoves(game, validList):
             if engine.is_move_correct(self.pos + pos + promoteException):
                 valid.append(pos)
         return valid
@@ -121,19 +128,7 @@ class pawnClass(pieceClass):
         for pos in diagonals:
             if pos in game.board.occupied and game.board.tiles[pos].piece != None and game.board.tiles[pos].piece.name[3] != self.name[3]:
                 valid.append(pos)
-        # en passant
-        game.specialCapture = {}
-        #if self.name[3] == 'W' and self.pos[1] == '5':
-       #     left = self.horz.index(self.pos[0]) - 1
-       #     if left >= 0 and not pos in game.board.occupied and self.horz[left] + '5' in game.board.occupied and game.board.tiles[self.horz[left] + '5'].piece.name[3] == 'B' and game.board.tiles[self.horz[left] + '5'].piece.name[0] == 'p' and game.moves[-1][1] == '7' and game.moves[-1][3] == '5':
-       #         pos = self.horz[left] + '6'
-        #        valid.append(pos)
-       #         game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[left] + '5'
-       #     right = self.horz.index(self.pos[0]) + 1
-       #     if right < 8 and not pos in game.board.occupied and self.horz[right] + '5' in game.board.occupied and game.board.tiles[self.horz[right] + '5'].piece.name[3] == 'B' and game.board.tiles[self.horz[right] + '5'].piece.name[0] == 'p' and game.moves[-1][1] == '7' and game.moves[-1][3] == '5':
-       #         pos = self.horz[right] + '6'
-       #         valid.append(pos)
-       #         game.specialCapture[self.type[0] + pos + self.type[1]] = self.horz[right] + '5'
+        game.specialCapture = {}  # makes en passant possible
         promotion = ''
         if self.name[3] == 'W' and self.pos[1] == '7':
             promotion = 'q'
